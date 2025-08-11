@@ -32,7 +32,6 @@ pub enum IpError {
     NotMulticast,
 }
 
-
 /// Maximum formatted size.
 ///
 /// It is useful for creating a stack-allocated buffer `[u8; MAC_MAX_SIZE]`
@@ -472,4 +471,3 @@ mod test {
         assert!(!addr.is_multicast());
     }
 }
-
