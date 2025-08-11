@@ -3,6 +3,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 mod parser;
 
+use core::error;
 use core::{
     clone::Clone,
     cmp::{Eq, PartialEq},
