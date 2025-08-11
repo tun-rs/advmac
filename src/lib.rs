@@ -3,6 +3,12 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 mod parser;
 
+use core::{
+    clone::Clone,
+    cmp::{Eq, PartialEq},
+    marker::Copy,
+};
+
 #[cfg(feature = "serde")]
 use arrayvec::ArrayString;
 use core::fmt::{self, Debug, Display, Formatter};
