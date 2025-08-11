@@ -167,7 +167,7 @@ macro_rules! mac_impl {
             /// It can be used like this with [arrayvec::ArrayString] without allocations:
             /// ```
             /// use arrayvec::ArrayString;
-            /// use advmac::{MacAddr6, MacAddrFormat, MAC_CANONICAL_SIZE6};
+            /// use advmac_rs::{MacAddr6, MacAddrFormat, MAC_CANONICAL_SIZE6};
             ///
             /// let mac = MacAddr6::parse_str("AA:BB:CC:DD:EE:FF").unwrap();
             ///
@@ -414,7 +414,7 @@ impl MacAddr8 {
 ///
 /// Example:
 /// ```
-/// use advmac::{mac6, MacAddr6};
+/// use advmac_rs::{mac6, MacAddr6};
 /// const MAC6: MacAddr6 = mac6!("11:22:33:44:55:66");
 /// # assert_eq!(MAC6.to_array(), [0x11, 0x22, 0x33, 0x44, 0x55, 0x66]);
 /// ```
@@ -432,7 +432,7 @@ macro_rules! mac6 {
 ///
 /// Example:
 /// ```
-/// use advmac::{mac8, MacAddr8};
+/// use advmac_rs::{mac8, MacAddr8};
 /// const MAC8: MacAddr8 = mac8!("11:22:33:44:55:66:77:88");
 /// # assert_eq!(MAC8.to_array(), [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88]);
 /// ```
