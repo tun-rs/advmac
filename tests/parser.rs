@@ -1,4 +1,4 @@
-use advmac::{mac6, mac8, MacAddr6, MacAddr8, ParseError};
+use advmac_rs::{mac6, mac8, MacAddr6, MacAddr8, ParseError};
 use std::str::FromStr;
 
 const TEST_MAC6: MacAddr6 = mac6!("12-34-56-78-9A-BC");

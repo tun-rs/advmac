@@ -1,6 +1,6 @@
 #![cfg(feature = "std")]
 
-use advmac::{mac6, IpError, MacAddr6};
+use advmac_rs::{mac6, IpError, MacAddr6};
 use std::net::{Ipv4Addr, Ipv6Addr};
 use std::str::FromStr;
 
