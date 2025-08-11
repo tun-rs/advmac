@@ -4,7 +4,6 @@ Advanced MAC address library.
 
 [![Crates.io](https://img.shields.io/crates/v/advmac-rs?style=flat-square)](https://crates.io/crates/advmac-rs)
 [![docs.rs](https://img.shields.io/docsrs/advmac-rs?style=flat-square)](https://docs.rs/advmac-rs/latest)
-[![Codecov](https://img.shields.io/codecov/c/gh/GamePad64/advmac?logo=codecov&style=flat-square)](https://codecov.io/gh/GamePad64/advmac)
 
 # Usage
 Add this to your `Cargo.toml`:
