@@ -14,41 +14,23 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "std")]
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
-#[derive(Eq, PartialEq, Debug, Clone, Copy)]
+use thiserror::Error;
+
+#[derive(Error, Debug, Clone, Copy, Eq, PartialEq)]
 pub enum ParseError {
+    #[error("Invalid MAC address")]
     InvalidMac,
+    #[error("Invalid string length: {length}")]
     InvalidLength { length: usize },
 }
 
-impl Display for ParseError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::InvalidMac => write!(f, "invalid MAC address"),
-            Self::InvalidLength { length } => write!(f, "invalid string length: {}", length),
-        }
-    }
-}
-
-#[cfg(feature = "std")]
-impl std::error::Error for ParseError {}
-
-#[derive(Eq, PartialEq, Debug, Clone, Copy)]
+#[derive(Error, Debug, Clone, Copy, Eq, PartialEq)]
 pub enum IpError {
+    #[error("Not a link-local address")]
     NotLinkLocal,
+    #[error("Not a multicast address")]
     NotMulticast,
 }
-
-impl Display for IpError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::NotLinkLocal => write!(f, "not link-local address"),
-            Self::NotMulticast => write!(f, "not multicast address"),
-        }
-    }
-}
-
-#[cfg(feature = "std")]
-impl std::error::Error for IpError {}
 
 /// Maximum formatted size.
 ///
@@ -185,7 +167,7 @@ macro_rules! mac_impl {
             /// It can be used like this with [arrayvec::ArrayString] without allocations:
             /// ```
             /// use arrayvec::ArrayString;
-            /// use advmac::{MacAddr6, MacAddrFormat, MAC_CANONICAL_SIZE6};
+            /// use advmac_rs::{MacAddr6, MacAddrFormat, MAC_CANONICAL_SIZE6};
             ///
             /// let mac = MacAddr6::parse_str("AA:BB:CC:DD:EE:FF").unwrap();
             ///
@@ -244,10 +226,10 @@ macro_rules! mac_impl {
             }
         }
 
-        impl TryFrom<&[core::ffi::c_char]> for $nm {
+        impl TryFrom<&[i8]> for $nm {
             type Error = ParseError;
 
-            fn try_from(value: &[core::ffi::c_char]) -> Result<Self, Self::Error> {
+            fn try_from(value: &[i8]) -> Result<Self, Self::Error> {
                 Self::try_from(unsafe { &*(value as *const _ as *const [u8]) })
             }
         }
@@ -432,7 +414,7 @@ impl MacAddr8 {
 ///
 /// Example:
 /// ```
-/// use advmac::{mac6, MacAddr6};
+/// use advmac_rs::{mac6, MacAddr6};
 /// const MAC6: MacAddr6 = mac6!("11:22:33:44:55:66");
 /// # assert_eq!(MAC6.to_array(), [0x11, 0x22, 0x33, 0x44, 0x55, 0x66]);
 /// ```
@@ -450,7 +432,7 @@ macro_rules! mac6 {
 ///
 /// Example:
 /// ```
-/// use advmac::{mac8, MacAddr8};
+/// use advmac_rs::{mac8, MacAddr8};
 /// const MAC8: MacAddr8 = mac8!("11:22:33:44:55:66:77:88");
 /// # assert_eq!(MAC8.to_array(), [0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88]);
 /// ```

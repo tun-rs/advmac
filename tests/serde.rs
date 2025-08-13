@@ -1,6 +1,6 @@
 #![cfg(all(feature = "std", feature = "serde"))]
 
-use advmac::{mac6, mac8, MacAddr6, MacAddr8};
+use advmac_rs::{mac6, mac8, MacAddr6, MacAddr8};
 use serde::{Deserialize, Serialize};
 
 #[test]

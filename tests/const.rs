@@ -1,4 +1,4 @@
-use advmac::{mac6, mac8, MacAddr6, MacAddr8};
+use advmac_rs::{mac6, mac8, MacAddr6, MacAddr8};
 
 const TEST_MAC_CONST6: MacAddr6 = mac6!("11-33-55-77-99-AA");
 const TEST_MAC_CONST8: MacAddr8 = mac8!("11-33-55-77-99-AA-CC-EE");

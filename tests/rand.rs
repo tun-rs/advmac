@@ -1,6 +1,6 @@
 #![cfg(feature = "rand")]
 
-use advmac::{MacAddr6, MacAddr8};
+use advmac_rs::{MacAddr6, MacAddr8};
 
 #[test]
 fn test_random() {

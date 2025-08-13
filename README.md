@@ -2,16 +2,15 @@
 
 Advanced MAC address library.
 
-[![Crates.io](https://img.shields.io/crates/v/advmac?style=flat-square)](https://crates.io/crates/advmac)
-[![docs.rs](https://img.shields.io/docsrs/advmac?style=flat-square)](https://docs.rs/advmac/latest)
-[![Codecov](https://img.shields.io/codecov/c/gh/GamePad64/advmac?logo=codecov&style=flat-square)](https://codecov.io/gh/GamePad64/advmac)
+[![Crates.io](https://img.shields.io/crates/v/advmac-rs?style=flat-square)](https://crates.io/crates/advmac-rs)
+[![docs.rs](https://img.shields.io/docsrs/advmac-rs?style=flat-square)](https://docs.rs/advmac-rs/latest)
 
 # Usage
 Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-advmac = "1.0.3"
+advmac-rs = "1.0.0"
 ```
 
 ## Features:
