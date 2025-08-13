@@ -11,75 +11,96 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  check-and-test:
-    name: Check & Test
+  # 任务一：专门在 Docker 容器中检查 Linux
+  check-linux:
+    name: Check on Linux
+    runs-on: ubuntu-latest
+    # 使用官方 Rust Docker 容器，保证环境绝对干净
+    container:
+      image: rust:stable # 你也可以用 rust:1.79.0 等具体版本
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 容器中已包含 Rust，无需安装。直接进行检查。
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            /usr/local/cargo/registry/index/
+            /usr/local/cargo/registry/cache/
+            /usr/local/cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Run Clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Run tests
+        run: cargo test --verbose --all-features
+
+      - name: Build release
+        run: cargo build --release --all-features
+        
+      - name: Check packaging
+        run: cargo package --all-features
+
+  # 任务二：检查 Windows 和 macOS
+  check-windows-macos:
+    name: Check on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [windows-latest, macos-latest]
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    # 安装最新的 stable Rust 工具链，并强制进行干净安装
-    - name: Install latest Rust toolchain
-      uses: actions-rust-lang/setup-rust-toolchain@v1
-      with:
-        toolchain: stable      # <-- 使用 "stable" 关键字来获取最新稳定版
-        components: clippy, fmt
-        override: true         # <-- 保留此项，以避免 runner 环境问题
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          override: true # 在这些平台上，override 应该能正常工作
+          components: clippy, fmt
 
-    # 为 Cargo 设置缓存，极大提升后续运行速度
-    - name: Cache Cargo dependencies
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.cargo/bin/
-          ~/.cargo/registry/index/
-          ~/.cargo/registry/cache/
-          ~/.cargo/git/db/
-          target/
-        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-cargo-
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
 
-    # 1. 检查代码格式
-    - name: Check formatting
-      run: cargo fmt --all -- --check
+      - name: Check formatting
+        run: cargo fmt --all -- --check
 
-    # 2. 运行 Clippy 代码质量检查
-    - name: Run Clippy
-      run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: Run Clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
 
-    # 3. 运行测试
-    - name: Run tests
-      run: cargo test --verbose --all-features
+      - name: Run tests
+        run: cargo test --verbose --all-features
 
-    # 4. 确保 Release 版本可以成功构建
-    - name: Build release
-      run: cargo build --release --all-features
-    
-    # 5. 检查是否可以打包
-    - name: Check packaging
-      run: cargo package --all-features
+      - name: Build release
+        run: cargo build --release --all-features
 
-  # (publish 任务可以保持不变，但建议也使用 'stable' 工具链)
+      - name: Check packaging
+        run: cargo package --all-features
+        
+  # (可选) 如果你需要在发布前确保所有检查都通过
   # publish:
   #   name: Publish to Crates.io
   #   runs-on: ubuntu-latest
-  #   needs: [check-and-test]
+  #   needs: [check-linux, check-windows-macos] # 依赖于上面两个任务
   #   if: startsWith(github.ref, 'refs/tags/')
-
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v3
-  #     - name: Install latest Rust toolchain
-  #       uses: actions-rust-lang/setup-rust-toolchain@v1
-  #       with:
-  #         toolchain: stable
-  #         override: true
-  #     - name: Publish to Crates.io
-  #       run: cargo publish
-  #       env:
-  #         CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+  #   # ... publish steps ...
