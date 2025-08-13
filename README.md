@@ -10,7 +10,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-advmac-rs = "1.0.0"
+advmac-rs = "1"
 ```
 
 ## Features:
