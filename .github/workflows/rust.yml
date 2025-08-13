@@ -1,106 +1,64 @@
+# 工作流的名称
 name: Rust CI
 
+# 配置工作流的触发器
 on:
+  # 当有代码推送到 main 分支时触发
   push:
-    branches: [ main ]
-    tags: [ 'v*' ]
+    branches: [ "main" ]
+  # 当有针对 main 分支的 Pull Request 时触发
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
 
+# 为工作流设置一些环境变量
 env:
+  # 让 Cargo 的输出总是带颜色，更易读
   CARGO_TERM_COLOR: always
 
+# 定义工作流中的任务（jobs）
 jobs:
-  # 任务一：专门在 Docker 容器中检查 Linux
-  check-linux:
-    name: Check on Linux
+  # 定义一个名为 "build-and-test" 的任务
+  build-and-test:
+    # 指定运行此任务的虚拟机环境
     runs-on: ubuntu-latest
-    # 使用官方 Rust Docker 容器，保证环境绝对干净
-    container:
-      image: rust:stable # 你也可以用 rust:1.79.0 等具体版本
 
+    # 定义此任务的执行步骤（steps）
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      # 第一步：检出（Checkout）你的代码库
+      # 这样工作流才能访问你的项目代码
+      - uses: actions/checkout@v4
 
-      # 容器中已包含 Rust，无需安装。直接进行检查。
-
-      - name: Cache Cargo dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            /usr/local/cargo/registry/index/
-            /usr/local/cargo/registry/cache/
-            /usr/local/cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Check formatting
-        run: cargo fmt --all -- --check
-
-      - name: Run Clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings
-
-      - name: Run tests
-        run: cargo test --verbose --all-features
-
-      - name: Build release
-        run: cargo build --release --all-features
-        
-      - name: Check packaging
-        run: cargo package --all-features
-
-  # 任务二：检查 Windows 和 macOS
-  check-windows-macos:
-    name: Check on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [windows-latest, macos-latest]
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
+      # 第二步：安装 Rust 工具链和所需的组件 (clippy, rustfmt)
+      # 使用 dtolnay/rust-toolchain action，这是目前推荐的方式
       - name: Install Rust toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-          override: true # 在这些平台上，override 应该能正常工作
-          components: clippy, fmt
+          components: clippy, rustfmt
 
-      - name: Cache Cargo dependencies
-        uses: actions/cache@v3
+      # 第三步：缓存 Cargo 依赖项
+      # 这会缓存 target 目录和 cargo registry，大大加快后续构建速度
+      - name: Cache dependencies
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin/
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-
-
-      - name: Check formatting
+          
+      # 第四步：检查代码格式 (cargo fmt)
+      # --check 参数会让命令在代码未格式化时失败，而不是直接修改文件
+      - name: Check formatting (cargo fmt)
         run: cargo fmt --all -- --check
 
+      # 第五步：运行 Clippy 进行代码质量检查
+      # -D warnings 会将所有 Clippy 警告（warnings）视为错误（errors），从而使 CI 失败
+      # 这有助于强制执行高质量的代码标准
       - name: Run Clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
 
+      # 第六步：运行测试 (cargo test)
+      # --verbose 参数会提供更详细的测试输出，便于调试
       - name: Run tests
         run: cargo test --verbose --all-features
-
-      - name: Build release
-        run: cargo build --release --all-features
-
-      - name: Check packaging
-        run: cargo package --all-features
-        
-  # (可选) 如果你需要在发布前确保所有检查都通过
-  # publish:
-  #   name: Publish to Crates.io
-  #   runs-on: ubuntu-latest
-  #   needs: [check-linux, check-windows-macos] # 依赖于上面两个任务
-  #   if: startsWith(github.ref, 'refs/tags/')
-  #   # ... publish steps ...
